@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ATP Dream">
+<meta name="theme-color" content="#080808">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<title>ATP Dream</title>
+<style>
+  :root {
+    --green: #AAFF00;
+    --red: #FF3B3B;
+    --gold: #FFD700;
+    --blue: #00C2FF;
+    --bg: #080808;
+    --card: #111;
+    --card2: #161616;
+    --border: #222;
+    --text: #F5F5F5;
+    --dim: #555;
+    --dimmer: #2a2a2a;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    min-height: 100%;
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    max-width: 430px;
+    margin: 0 auto;
+    padding-bottom: calc(140px + var(--safe-bottom));
+  }
+
+  /* ── HEADER ─────────────────────────────────── */
+  #header {
+    background: var(--bg);
+    padding: 52px 20px 16px;
+    border-bottom: 1px solid #141414;
+  }
+
+  .h-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .logo {
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    color: var(--green);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .logo span { color: #333; }
+
+  .tagline {
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .streak-pill {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 14px;
+    padding: 10px 16px;
+    text-align: center;
+  }
+
+  .streak-fire { font-size: 22px; line-height: 1; }
+  .streak-n { font-size: 26px; font-weight: 900; line-height: 1; margin: 2px 0; }
+  .streak-l { font-size: 9px; color: var(--dim); letter-spacing: 1.5px; text-transform: uppercase; }
+
+  /* ── LEVEL BAR ──────────────────────────────── */
+  .level-wrap {
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    transition: border-color .3s;
+  }
+
+  .level-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .level-left { display: flex; align-items: center; gap: 8px; }
+  .level-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .level-name { font-size: 13px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; }
+  .level-xp { font-size: 22px; font-weight: 900; color: var(--green); }
+
+  .pb { height: 5px; background: #1c1c1c; border-radius: 3px; overflow: hidden; }
+  .pb-fill { height: 100%; border-radius: 3px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+  .level-hint { font-size: 11px; color: #333; margin-top: 6px; }
+
+  /* ── TABS ───────────────────────────────────── */
+  #tabs {
+    display: flex;
+    background: var(--bg);
+    border-bottom: 1px solid #141414;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 14px 0;
+    background: transparent;
+    border: none;
+    color: var(--dim);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+    font-family: inherit;
+  }
+
+  .tab.on { color: var(--green); border-bottom-color: var(--green); }
+
+  /* ── CONTENT ────────────────────────────────── */
+  #view { padding: 18px 16px; }
+  #view.fade { animation: fadeUp .22s ease both; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+
+  /* ── DAY BANNER ─────────────────────────────── */
+  .banner {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .banner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent, var(--green));
+  }
+
+  .banner-row { display: flex; justify-content: space-between; align-items: flex-start; }
+  .banner-emoji { font-size: 36px; margin-bottom: 6px; }
+  .banner-title { font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
+  .banner-date { font-size: 12px; color: var(--dim); margin-top: 4px; }
+  .banner-count { text-align: right; }
+  .banner-big { font-size: 44px; font-weight: 900; line-height: 1; }
+  .banner-big span { color: var(--dimmer); font-size: 28px; }
+  .banner-lbl { font-size: 11px; color: var(--dim); margin-top: 2px; }
+  .banner-pb { margin-top: 14px; }
+
+  /* ── SECTION HEADER ─────────────────────────── */
+  .sec { display: flex; align-items: center; gap: 10px; margin: 20px 0 10px; }
+  .sec-line { width: 3px; height: 16px; border-radius: 2px; }
+  .sec-t { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+  .sec-prog { flex: 1; height: 2px; background: #1c1c1c; border-radius: 1px; overflow: hidden; }
+  .sec-prog-fill { height: 100%; border-radius: 1px; transition: width .3s; }
+  .sec-c { font-size: 12px; font-weight: 700; color: var(--dim); }
+
+  /* ── TASK CARD ──────────────────────────────── */
+  .tasks {
+    background: var(--card);
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .task {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 14px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #161616;
+    transition: background .1s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .task:last-child { border-bottom: none; }
+  .task:active { background: #161616; }
+  .task.done { opacity: .38; }
+
+  .chk {
+    width: 24px; height: 24px;
+    border-radius: 8px;
+    border: 1.5px solid #333;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+    font-size: 13px; font-weight: 900; color: #080808;
+  }
+
+  .chk.on { background: var(--green); border-color: var(--green); }
+
+  .task-txt {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .task-txt.done { text-decoration: line-through; }
+
+  .task-xp {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--green);
+    white-space: nowrap;
+    background: #AAFF0012;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  .task-xp.done { color: #1c1c1c; background: transparent; }
+
+  /* ── WEEK VIEW ──────────────────────────────── */
+  .week-hdr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .week-hdr-t { font-size: 13px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); }
+  .week-xp { font-size: 14px; font-weight: 800; color: var(--green); }
+
+  .wcard {
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 14px 15px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color .2s;
+  }
+
+  .wday { width: 42px; text-align: center; flex-shrink: 0; }
+  .wday-s { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; }
+  .wday-n { font-size: 26px; font-weight: 900; line-height: 1.1; }
+  .wemoji { font-size: 20px; flex-shrink: 0; }
+  .winfo { flex: 1; min-width: 0; }
+  .wtitle { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wcnt { font-size: 13px; font-weight: 800; flex-shrink: 0; }
+
+  /* ── MONTH CALENDAR ─────────────────────────── */
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-hd { font-size: 10px; color: #333; text-align: center; padding: 4px 0; font-weight: 700; }
+  .cal-cell {
+    aspect-ratio: 1;
+    border-radius: 9px;
+    border: 1px solid #1a1a1a;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+    background: var(--card);
+    transition: border-color .2s;
+  }
+  .cal-pct { font-size: 8px; color: #333; margin-top: 1px; }
+
+  .month-stats {
+    background: var(--card);
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    padding: 18px;
+    margin-top: 20px;
+  }
+
+  .stats-hd { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; }
+  .stat-n { font-size: 32px; font-weight: 900; color: var(--green); line-height: 1; }
+  .stat-l { font-size: 11px; color: var(--dim); margin-top: 4px; }
+
+  /* ── LEGEND ─────────────────────────────────── */
+  .legend {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px;
+  }
+
+  .leg-item { display: flex; align-items: center; gap: 6px; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 3px; }
+  .leg-t { font-size: 11px; color: var(--dim); }
+
+  /* ── TOAST ──────────────────────────────────── */
+  #toast {
+    position: fixed;
+    bottom: 130px;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: var(--green);
+    color: #080808;
+    padding: 10px 22px;
+    border-radius: 24px;
+    font-weight: 800;
+    font-size: 15px;
+    z-index: 500;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .2s, transform .2s;
+  }
+
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── BOTTOM BAR ─────────────────────────────── */
+  #bottom {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(8,8,8,.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 12px 16px;
+    padding-bottom: calc(12px + var(--safe-bottom));
+    border-top: 1px solid #161616;
+    max-width: 430px;
+    margin: 0 auto;
+    z-index: 40;
+  }
+
+  .notif-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+  }
+
+  .notif-label { font-size: 12px; color: var(--dim); white-space: nowrap; }
+
+  input[type="time"] {
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--text);
+    padding: 7px 10px;
+    font-size: 14px;
+    font-family: inherit;
+    flex: 1;
+    outline: none;
+    min-width: 0;
+    transition: border-color .2s;
+  }
+
+  input[type="time"]:focus { border-color: var(--green); }
+
+  .notif-btn {
+    background: #1c1c1c;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--dim);
+    padding: 7px 13px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: all .2s;
+  }
+
+  .notif-btn.on { background: var(--green); color: #080808; border-color: var(--green); }
+
+  .fab {
+    width: 100%;
+    padding: 15px;
+    background: var(--green);
+    border: none;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+    color: #080808;
+    font-family: inherit;
+    letter-spacing: .02em;
+    transition: opacity .15s;
+  }
+
+  .fab:active { opacity: .8; }
+
+  /* ── INSTALL SHEET ──────────────────────────── */
+  #overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.85);
+    z-index: 100;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  #overlay.show { display: flex; }
+
+  .sheet {
+    background: #111;
+    border-radius: 24px 24px 0 0;
+    padding: 28px 20px;
+    width: 100%; max-width: 430px;
+    border-top: 1px solid #222;
+  }
+
+  .sheet-title { font-size: 22px; font-weight: 900; color: var(--green); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+
+  .step { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px; }
+  .step-n {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--green); color: #080808;
+    font-weight: 900; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-t { font-size: 15px; line-height: 1.5; color: #ccc; }
+  .step-t strong { color: #fff; }
+
+  .close-sheet {
+    width: 100%;
+    padding: 14px;
+    background: #1a1a1a;
+    border: 1px solid #222;
+    border-radius: 14px;
+    color: var(--dim);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="h-top">
+    <div>
+      <div class="logo">ATP<span>Dream</span></div>
+      <div class="tagline">Krefeld → ATP Tour</div>
+    </div>
+    <div class="streak-pill">
+      <div class="streak-fire">🔥</div>
+      <div class="streak-n" id="streak-n">0</div>
+      <div class="streak-l">Streak</div>
+    </div>
+  </div>
+  <div class="level-wrap" id="lv-wrap">
+    <div class="level-top">
+      <div class="level-left">
+        <div class="level-dot" id="lv-dot"></div>
+        <div class="level-name" id="lv-name">Freizeitspieler</div>
+      </div>
+      <div class="level-xp" id="lv-xp">0 XP</div>
+    </div>
+    <div class="pb"><div class="pb-fill" id="pb-fill" style="width:0%"></div></div>
+    <div class="level-hint" id="lv-hint"></div>
+  </div>
+</div>
+
+<div id="tabs">
+  <button class="tab on" onclick="go('today',this)">Heute</button>
+  <button class="tab" onclick="go('week',this)">Woche</button>
+  <button class="tab" onclick="go('month',this)">Monat</button>
+</div>
+
+<div id="view"></div>
+<div id="toast"></div>
+
+<div id="bottom">
+  <div class="notif-row">
+    <span>🔔</span>
+    <span class="notif-label">Reminder</span>
+    <input type="time" id="n-time" value="07:30">
+    <button class="notif-btn" id="n-btn" onclick="toggleNotif()">Aktivieren</button>
+  </div>
+  <button class="fab" onclick="showSheet()">📲 Als App auf iPhone installieren</button>
+</div>
+
+<div id="overlay" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet">
+    <div class="sheet-title">App installieren</div>
+    <div id="steps"></div>
+    <button class="close-sheet" onclick="closeSheet()">✕ Schließen</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ── DATA ──────────────────────────────────────────────────────
+var PLAN = {
+  0: {
+    emoji:'🧘', title:'Recovery & Mobilität', color:'#1ED760',
+    training:[
+      {id:'r1',text:'Yoga / Mobility 30 Min',xp:20},
+      {id:'r2',text:'Foam Rolling – Beine & Rücken 20 Min',xp:15},
+      {id:'r3',text:'Leichter Spaziergang 30 Min',xp:10},
+      {id:'r4',text:'Profi-Match analysieren (Video)',xp:15}
+    ],
+    nutrition:[
+      {id:'r5',text:'🥣 Haferflocken + Beeren + Walnüsse',xp:10},
+      {id:'r6',text:'🥗 Salat + Lachs + Avocado',xp:10},
+      {id:'r7',text:'🍗 Hühnchen + gedünstetes Gemüse',xp:10},
+      {id:'r8',text:'💧 3+ Liter Wasser',xp:10}
+    ]
+  },
+  1: {
+    emoji:'💪', title:'Kraft: Oberkörper', color:'#FF3B3B',
+    training:[
+      {id:'a1',text:'Seilspringen 10 Min – Aufwärmen',xp:15},
+      {id:'a2',text:'Bankdrücken 4 × 8 Wdh',xp:25},
+      {id:'a3',text:'Schulterdrücken 3 × 10 Wdh',xp:20},
+      {id:'a4',text:'Klimmzüge 3 × 8 Wdh',xp:25},
+      {id:'a5',text:'Kurzhantel-Rudern 3 × 10',xp:20},
+      {id:'a6',text:'Trizeps-Dips 3 × 12',xp:15},
+      {id:'a7',text:'Plank 3 × 60 Sekunden',xp:20},
+      {id:'a8',text:'Cool-Down + Dehnen 10 Min',xp:10}
+    ],
+    nutrition:[
+      {id:'a9',text:'🥣 Protein-Haferflocken + Banane',xp:10},
+      {id:'a10',text:'🥜 Joghurt + Mandeln',xp:10},
+      {id:'a11',text:'🍝 Pasta + Hühnchen + Brokkoli',xp:10},
+      {id:'a12',text:'🍌 Pre-Workout: Banane + Protein Shake',xp:10},
+      {id:'a13',text:'🥩 Steak + Süßkartoffeln + Salat',xp:10},
+      {id:'a14',text:'💧 3+ Liter Wasser',xp:10}
+    ]
+  },
+  2: {
+    emoji:'🎾', title:'Tennis: Technik & Grundlinie', color:'#AAFF00',
+    training:[
+      {id:'b1',text:'Laufen 15 Min + Stretching',xp:15},
+      {id:'b2',text:'Vorhand Cross: 100 Bälle',xp:30},
+      {id:'b3',text:'Rückhand Cross: 100 Bälle',xp:30},
+      {id:'b4',text:'Longline Vorhand & RH: je 50 Bälle',xp:25},
+      {id:'b5',text:'Aufschlag-Training: 50 Aufschläge',xp:25},
+      {id:'b6',text:'Volley-Training 20 Min',xp:20},
+      {id:'b7',text:'Freies Matchplay 30 Min',xp:20},
+      {id:'b8',text:'Cool-Down + Stretching',xp:10}
+    ],
+    nutrition:[
+      {id:'b9',text:'🥣 Rührei + Vollkornbrot + Avocado',xp:10},
+      {id:'b10',text:'🍎 Apfel + Protein Riegel',xp:10},
+      {id:'b11',text:'🍚 Reis + Lachs + Spinat',xp:10},
+      {id:'b12',text:'🍌 Pre-Tennis: Banane 30 Min vorher',xp:10},
+      {id:'b13',text:'🥗 Quark + Nüsse + Beeren',xp:10},
+      {id:'b14',text:'💧 3L Wasser + Elektrolyte',xp:10}
+    ]
+  },
+  3: {
+    emoji:'🏋️', title:'Kraft: Unterkörper & Core', color:'#FF3B3B',
+    training:[
+      {id:'c1',text:'Hüften mobilisieren + Seilspringen',xp:15},
+      {id:'c2',text:'Kniebeugen 4 × 8 Wdh',xp:25},
+      {id:'c3',text:'Rumänisches Kreuzheben 3 × 10',xp:25},
+      {id:'c4',text:'Ausfallschritte 3 × 12 pro Bein',xp:20},
+      {id:'c5',text:'Wadenerheben 4 × 15',xp:15},
+      {id:'c6',text:'Crunches 3 × 20',xp:15},
+      {id:'c7',text:'Russian Twists 3 × 20',xp:15},
+      {id:'c8',text:'Plank mit Rotation 3 × 45 Sek',xp:20}
+    ],
+    nutrition:[
+      {id:'c9',text:'🥣 Overnight Oats + Protein + Früchte',xp:10},
+      {id:'c10',text:'🥜 Joghurt + Walnüsse',xp:10},
+      {id:'c11',text:'🍗 Hühnchen + Quinoa + Gemüse',xp:10},
+      {id:'c12',text:'🥤 Pre-Workout Shake + Creatine',xp:10},
+      {id:'c13',text:'🥩 Thunfisch + Vollkornnudeln + Salat',xp:10},
+      {id:'c14',text:'💧 3+ Liter Wasser',xp:10}
+    ]
+  },
+  4: {
+    emoji:'🎾', title:'Tennis: Taktik & Matchplay', color:'#AAFF00',
+    training:[
+      {id:'d1',text:'Koordinationsleiter + Stretching',xp:15},
+      {id:'d2',text:'Serve + 1 Kombinationen 30 Min',xp:30},
+      {id:'d3',text:'Return-Training vs. harter Aufschlag',xp:25},
+      {id:'d4',text:'Serve & Volley Patterns',xp:20},
+      {id:'d5',text:'Tie-Break Druckpunkte spielen',xp:25},
+      {id:'d6',text:'Video-Analyse: Profi-Match',xp:15},
+      {id:'d7',text:'Cool-Down + Stretching',xp:10}
+    ],
+    nutrition:[
+      {id:'d8',text:'🥣 Protein-Pancakes + Honig + Beeren',xp:10},
+      {id:'d9',text:'🍎 Quark + Apfel',xp:10},
+      {id:'d10',text:'🍝 Pasta Bolognese (mageres Hack)',xp:10},
+      {id:'d11',text:'🍌 Pre-Tennis: Banane + Energiegel',xp:10},
+      {id:'d12',text:'🥗 Hüttenkäse + Gemüsesticks',xp:10},
+      {id:'d13',text:'💧 3L Wasser + Isotonisch',xp:10}
+    ]
+  },
+  5: {
+    emoji:'⚡', title:'Explosivität & Vollkörper', color:'#FF9500',
+    training:[
+      {id:'e1',text:'Dynamisches Stretching + Sprints',xp:15},
+      {id:'e2',text:'Box Jumps 4 × 6',xp:30},
+      {id:'e3',text:'Medizinball-Würfe 3 × 10',xp:25},
+      {id:'e4',text:'Sprint-Intervalle: 6 × 30m',xp:30},
+      {id:'e5',text:'Kreuzheben 3 × 5 (schwer)',xp:25},
+      {id:'e6',text:'Farmers Walk 3 × 40m',xp:20},
+      {id:'e7',text:'Cool-Down & Dehnen 15 Min',xp:10}
+    ],
+    nutrition:[
+      {id:'e8',text:'🥣 Eier + Avocado Toast + Smoothie',xp:10},
+      {id:'e9',text:'🥜 Protein Shake + Mandeln',xp:10},
+      {id:'e10',text:'🍚 Reis + Hühnchen + Curry-Gemüse',xp:10},
+      {id:'e11',text:'⚡ Kaffee + Protein + Banane (Pre-WO)',xp:10},
+      {id:'e12',text:'🥩 Süßkartoffeln + Lachs + Brokkoli',xp:10},
+      {id:'e13',text:'💧 3L Wasser + Post-Workout Shake',xp:10}
+    ]
+  },
+  6: {
+    emoji:'🏆', title:'Match & Sparring', color:'#FFD700',
+    training:[
+      {id:'f1',text:'Vollständiges Aufwärmen 20 Min',xp:15},
+      {id:'f2',text:'Match 1: ersten Satz spielen (~1h)',xp:50},
+      {id:'f3',text:'Pause + Match-Analyse 15 Min',xp:15},
+      {id:'f4',text:'Match 2: zweiten Satz spielen',xp:50},
+      {id:'f5',text:'Cool-Down + Stretching 15 Min',xp:15},
+      {id:'f6',text:'Match-Notizen: Was lief gut / schlecht?',xp:20}
+    ],
+    nutrition:[
+      {id:'f7',text:'🥣 Haferflocken + Protein + Banane (2h vor Match)',xp:10},
+      {id:'f8',text:'🍌 Pausen: Banane + Energiegel',xp:10},
+      {id:'f9',text:'🍗 Post-Match: Hühnchen + Reisgericht',xp:10},
+      {id:'f10',text:'🥗 Abend: leichte Kost + Gemüse + Protein',xp:10},
+      {id:'f11',text:'💧 4+ Liter Wasser (Match-Tag!)',xp:15}
+    ]
+  }
+};
+
+var LEVELS = [
+  {name:'Freizeitspieler', min:0,    color:'#666666'},
+  {name:'Vereinsspieler',  min:500,  color:'#4CAF50'},
+  {name:'Turnierspieler',  min:1500, color:'#2196F3'},
+  {name:'Regional-Elite',  min:3000, color:'#9C27B0'},
+  {name:'National',        min:6000, color:'#FF9800'},
+  {name:'ATP Hopeful 🎾',  min:10000,color:'#AAFF00'}
+];
+
+var DAY_S = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+
+// ── STATE ─────────────────────────────────────────────────────
+var S = { done:{}, xp:0, notif:false, ntime:'07:30' };
+var curTab = 'today';
+var nTimer = null;
+
+function load() {
+  try { var d = JSON.parse(localStorage.getItem('atp3')||'{}'); S=Object.assign(S,d); } catch(e){}
+}
+
+function save() {
+  try { localStorage.setItem('atp3',JSON.stringify(S)); } catch(e){}
+}
+
+function dk(d) {
+  d=d||new Date();
+  return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+}
+
+function p2(n){return n<10?'0'+n:''+n;}
+
+// ── LEVEL ─────────────────────────────────────────────────────
+function getLevel() {
+  var lv=LEVELS[0], idx=0;
+  for(var i=0;i<LEVELS.length;i++){if(S.xp>=LEVELS[i].min){lv=LEVELS[i];idx=i;}}
+  return {lv:lv,idx:idx};
+}
+
+// ── STREAK ────────────────────────────────────────────────────
+function streak() {
+  var n=0, d=new Date();
+  for(var i=0;i<365;i++){
+    if(!(S.done[dk(d)]||[]).length) break;
+    n++; d.setDate(d.getDate()-1);
+  }
+  return n;
+}
+
+// ── RENDER HEADER ─────────────────────────────────────────────
+function renderHeader() {
+  document.getElementById('streak-n').textContent = streak();
+  var r=getLevel(); var lv=r.lv; var idx=r.idx;
+  document.getElementById('lv-wrap').style.borderColor=lv.color+'33';
+  document.getElementById('lv-dot').style.background=lv.color;
+  document.getElementById('lv-name').style.color=lv.color;
+  document.getElementById('lv-name').textContent=lv.name;
+  document.getElementById('lv-xp').textContent=S.xp.toLocaleString()+' XP';
+  var next=LEVELS[idx+1];
+  var pct=next?Math.min(1,(S.xp-lv.min)/(next.min-lv.min)):1;
+  document.getElementById('pb-fill').style.width=(pct*100)+'%';
+  document.getElementById('pb-fill').style.background=lv.color;
+  document.getElementById('lv-hint').textContent=next
+    ?'Noch '+(next.min-S.xp).toLocaleString()+' XP bis "'+next.name+'"'
+    :'🏆 Maximales Level erreicht!';
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg) {
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},1800);
+}
+
+// ── TOGGLE TASK ───────────────────────────────────────────────
+function toggle(dateKey, id, xp) {
+  var arr=S.done[dateKey]||[];
+  var idx=arr.indexOf(id);
+  if(idx>=0){ arr.splice(idx,1); S.xp=Math.max(0,S.xp-xp); }
+  else { arr.push(id); S.xp+=xp; toast('+'+xp+' XP! 💥'); }
+  S.done[dateKey]=arr;
+  save(); renderHeader();
+  // fast in-place update
+  var row=document.getElementById('t-'+id);
+  if(row){
+    var isDone=arr.indexOf(id)>=0;
+    row.classList.toggle('done',isDone);
+    var chk=row.querySelector('.chk');
+    chk.classList.toggle('on',isDone);
+    chk.textContent=isDone?'✓':'';
+    row.querySelector('.task-txt').classList.toggle('done',isDone);
+    row.querySelector('.task-xp').classList.toggle('done',isDone);
+    updateBanner(dateKey);
+  }
+}
+
+function updateBanner(dateKey) {
+  var dp=PLAN[new Date().getDay()];
+  var arr=S.done[dateKey]||[];
+  var all=dp.training.concat(dp.nutrition);
+  var done=all.filter(function(t){return arr.indexOf(t.id)>=0;}).length;
+  var total=all.length;
+  var el=document.getElementById('b-cnt');
+  if(el) el.innerHTML=done+'<span>/'+total+'</span>';
+  var pb=document.getElementById('b-pb');
+  if(pb){pb.style.width=(total?done/total*100:0)+'%';pb.style.background=done===total?'#AAFF00':dp.color;}
+}
+
+// ── BUILD TASK ────────────────────────────────────────────────
+function taskEl(t, isDone, dateKey) {
+  var div=document.createElement('div');
+  div.className='task'+(isDone?' done':'');
+  div.id='t-'+t.id;
+  var chk=document.createElement('div');
+  chk.className='chk'+(isDone?' on':'');
+  chk.textContent=isDone?'✓':'';
+  var txt=document.createElement('div');
+  txt.className='task-txt'+(isDone?' done':'');
+  txt.textContent=t.text;
+  var xp=document.createElement('div');
+  xp.className='task-xp'+(isDone?' done':'');
+  xp.textContent='+'+t.xp;
+  div.appendChild(chk); div.appendChild(txt); div.appendChild(xp);
+  div.addEventListener('click',function(){toggle(dateKey,t.id,t.xp);});
+  return div;
+}
+
+// ── TODAY ─────────────────────────────────────────────────────
+function renderToday() {
+  var dateKey_=dk();
+  var di=new Date().getDay();
+  var dp=PLAN[di];
+  var arr=S.done[dateKey_]||[];
+  var doneSet={};arr.forEach(function(id){doneSet[id]=true;});
+  var all=dp.training.concat(dp.nutrition);
+  var doneCnt=all.filter(function(t){return doneSet[t.id];}).length;
+  var total=all.length;
+  var trainDone=dp.training.filter(function(t){return doneSet[t.id];}).length;
+  var nutriDone=dp.nutrition.filter(function(t){return doneSet[t.id];}).length;
+  var dateStr=new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+  var pct=total?doneCnt/total:0;
+
+  var v=document.getElementById('view');
+  v.innerHTML='';
+
+  // Banner
+  var ban=document.createElement('div');
+  ban.className='banner';
+  ban.style.setProperty('--accent',dp.color);
+  ban.innerHTML=
+    '<div class="banner-row">'+
+      '<div>'+
+        '<div class="banner-emoji">'+dp.emoji+'</div>'+
+        '<div class="banner-title" style="color:'+dp.color+'">'+dp.title+'</div>'+
+        '<div class="banner-date">'+dateStr+'</div>'+
+      '</div>'+
+      '<div class="banner-count">'+
+        '<div class="banner-big" id="b-cnt" style="color:'+(doneCnt===total?'#AAFF00':'#F5F5F5')+'">'+doneCnt+'<span>/'+total+'</span></div>'+
+        '<div class="banner-lbl">Tasks</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="banner-pb pb" style="margin-top:14px"><div class="pb-fill" id="b-pb" style="width:'+(pct*100)+'%;background:'+(doneCnt===total?'#AAFF00':dp.color)+'"></div></div>';
+  v.appendChild(ban);
+
+  // Training
+  v.appendChild(secEl('Training','#FF3B3B',trainDone,dp.training.length));
+  var c1=document.createElement('div'); c1.className='tasks';
+  dp.training.forEach(function(t){c1.appendChild(taskEl(t,!!doneSet[t.id],dateKey_));});
+  v.appendChild(c1);
+
+  // Nutrition
+  v.appendChild(secEl('Ernährung','#1ED760',nutriDone,dp.nutrition.length));
+  var c2=document.createElement('div'); c2.className='tasks';
+  dp.nutrition.forEach(function(t){c2.appendChild(taskEl(t,!!doneSet[t.id],dateKey_));});
+  v.appendChild(c2);
+}
+
+function secEl(title,color,done,total) {
+  var d=document.createElement('div'); d.className='sec';
+  d.innerHTML=
+    '<div class="sec-line" style="background:'+color+'"></div>'+
+    '<div class="sec-t" style="color:'+color+'">'+title+'</div>'+
+    '<div class="sec-prog"><div class="sec-prog-fill" style="width:'+(total?done/total*100:0)+'%;background:'+color+'"></div></div>'+
+    '<div class="sec-c">'+done+'/'+total+'</div>';
+  return d;
+}
+
+// ── WEEK ──────────────────────────────────────────────────────
+function renderWeek() {
+  var today=new Date(); var tdi=today.getDay();
+  var v=document.getElementById('view'); v.innerHTML='';
+  var weekXP=0;
+
+  var hdr=document.createElement('div'); hdr.className='week-hdr';
+  var xpEl=document.createElement('div'); xpEl.className='week-xp';
+  hdr.innerHTML='<div class="week-hdr-t">Diese Woche</div>';
+  hdr.appendChild(xpEl); v.appendChild(hdr);
+
+  for(var i=0;i<7;i++){
+    var d=new Date(today); d.setDate(today.getDate()-today.getDay()+i);
+    var dateKey_=dk(d); var dp=PLAN[i];
+    var arr=S.done[dateKey_]||[];
+    var doneSet={};arr.forEach(function(id){doneSet[id]=true;});
+    var all=dp.training.concat(dp.nutrition);
+    var doneCnt=all.filter(function(t){return doneSet[t.id];}).length;
+    var pct=all.length?doneCnt/all.length:0;
+    weekXP+=all.filter(function(t){return doneSet[t.id];}).reduce(function(s,t){return s+t.xp;},0);
+    var isToday=(i===tdi);
+    var pc=pct===1?'#AAFF00':dp.color;
+
+    var wc=document.createElement('div'); wc.className='wcard';
+    wc.style.borderColor=isToday?dp.color+'66':'#222';
+    wc.innerHTML=
+      '<div class="wday">'+
+        '<div class="wday-s">'+DAY_S[i]+'</div>'+
+        '<div class="wday-n" style="color:'+(isToday?'#F5F5F5':'#2a2a2a')+'">'+d.getDate()+'</div>'+
+      '</div>'+
+      '<div class="wemoji">'+dp.emoji+'</div>'+
+      '<div class="winfo">'+
+        '<div class="wtitle" style="color:'+(isToday?dp.color:'#555')+'">'+dp.title+'</div>'+
+        '<div class="pb" style="margin-top:7px"><div class="pb-fill" style="width:'+(pct*100)+'%;background:'+pc+'"></div></div>'+
+      '</div>'+
+      '<div class="wcnt" style="color:'+(pct===1?'#AAFF00':'#2a2a2a')+'">'+doneCnt+'/'+all.length+'</div>';
+    v.appendChild(wc);
+  }
+  xpEl.textContent=weekXP+' XP';
+}
+
+// ── MONTH ─────────────────────────────────────────────────────
+function renderMonth() {
+  var today=new Date(); var y=today.getFullYear(); var mo=today.getMonth();
+  var first=new Date(y,mo,1); var last=new Date(y,mo+1,0);
+  var v=document.getElementById('view'); v.innerHTML='';
+
+  var hdr=document.createElement('div');
+  hdr.style.cssText='font-size:13px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#444;margin-bottom:14px';
+  hdr.textContent=today.toLocaleDateString('de-DE',{month:'long',year:'numeric'}).toUpperCase();
+  v.appendChild(hdr);
+
+  var grid=document.createElement('div'); grid.className='cal';
+  DAY_S.forEach(function(s){var h=document.createElement('div');h.className='cal-hd';h.textContent=s;grid.appendChild(h);});
+  for(var p=0;p<first.getDay();p++){grid.appendChild(document.createElement('div'));}
+
+  var fullD=0,anyD=0,mXP=0;
+  for(var d=1;d<=last.getDate();d++){
+    var date=new Date(y,mo,d); var dateKey_=dk(date); var di=date.getDay(); var dp=PLAN[di];
+    var arr=S.done[dateKey_]||[];
+    var doneSet={};arr.forEach(function(id){doneSet[id]=true;});
+    var all=dp.training.concat(dp.nutrition);
+    var doneCnt=all.filter(function(t){return doneSet[t.id];}).length;
+    var pct=all.length?doneCnt/all.length:0;
+    var isFuture=date>today; var isToday=(date.toDateString()===today.toDateString());
+    if(!isFuture&&all.length){if(pct===1)fullD++;if(pct>0)anyD++;mXP+=all.filter(function(t){return doneSet[t.id];}).reduce(function(s,t){return s+t.xp;},0);}
+    var bg='#111',bc='#1a1a1a',col='#2a2a2a';
+    if(!isFuture&&all.length){
+      if(pct===1){bg='#AAFF0018';bc='#AAFF0055';col='#AAFF00';}
+      else if(pct>.5){bg='#AAFF000e';bc='#AAFF0030';col='#666';}
+      else if(pct>0){bg='#FF3B3B0e';bc='#FF3B3B30';col='#555';}
+    }
+    if(isToday){bc=pct===1?'#AAFF00':'#666';col='#F5F5F5';}
+    var cell=document.createElement('div'); cell.className='cal-cell';
+    cell.style.cssText='background:'+bg+';border-color:'+bc+';color:'+col+';font-weight:'+(isToday?700:500);
+    cell.innerHTML=d+(!isFuture&&all.length?'<div class="cal-pct">'+Math.round(pct*100)+'%</div>':'');
+    grid.appendChild(cell);
+  }
+  v.appendChild(grid);
+
+  // Legend
+  var leg=document.createElement('div'); leg.className='legend';
+  [['#AAFF0018','#AAFF0055','Vollständig'],['#AAFF000e','#AAFF0030','Gut (>50%)'],['#FF3B3B0e','#FF3B3B30','Gestartet'],['#111','#1a1a1a','Offen']].forEach(function(l){
+    var li=document.createElement('div'); li.className='leg-item';
+    li.innerHTML='<div class="leg-dot" style="background:'+l[0]+';border:1px solid '+l[1]+'"></div><div class="leg-t">'+l[2]+'</div>';
+    leg.appendChild(li);
+  });
+  v.appendChild(leg);
+
+  // Stats
+  var ms=document.createElement('div'); ms.className='month-stats';
+  ms.innerHTML='<div class="stats-hd">Monats-Stats</div><div class="stats-grid">'+
+    '<div><div class="stat-n">'+fullD+'</div><div class="stat-l">Volle Tage</div></div>'+
+    '<div><div class="stat-n">'+anyD+'</div><div class="stat-l">Aktive Tage</div></div>'+
+    '<div><div class="stat-n">'+mXP.toLocaleString()+'</div><div class="stat-l">XP Monat</div></div>'+
+  '</div>';
+  v.appendChild(ms);
+}
+
+// ── TABS ──────────────────────────────────────────────────────
+function go(tab, btn) {
+  curTab=tab;
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  btn.classList.add('on');
+  var v=document.getElementById('view');
+  v.className=''; void v.offsetWidth; v.className='fade';
+  if(tab==='today') renderToday();
+  else if(tab==='week') renderWeek();
+  else renderMonth();
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────
+function toggleNotif() {
+  if(S.notif){
+    S.notif=false; save(); if(nTimer)clearTimeout(nTimer);
+    document.getElementById('n-btn').textContent='Aktivieren';
+    document.getElementById('n-btn').classList.remove('on');
+    toast('🔕 Erinnerungen deaktiviert');
+    return;
+  }
+  if(!('Notification' in window)){toast('⚠️ Nicht unterstützt');return;}
+  Notification.requestPermission().then(function(p){
+    if(p!=='granted'){toast('⚠️ Bitte Benachrichtigungen erlauben');return;}
+    S.ntime=document.getElementById('n-time').value||'07:30';
+    S.notif=true; save(); scheduleNotif();
+    document.getElementById('n-btn').textContent='Aktiv ✓';
+    document.getElementById('n-btn').classList.add('on');
+    toast('🔔 Reminder gesetzt: '+S.ntime+' Uhr');
+  });
+}
+
+function scheduleNotif() {
+  if(nTimer)clearTimeout(nTimer);
+  if(!S.notif)return;
+  var p=S.ntime.split(':'); var h=parseInt(p[0]); var m=parseInt(p[1]);
+  var now=new Date(); var next=new Date();
+  next.setHours(h,m,0,0);
+  if(next<=now)next.setDate(next.getDate()+1);
+  nTimer=setTimeout(function(){
+    if(Notification.permission==='granted'){
+      var di=new Date().getDay(); var dp=PLAN[di]; var k=dk();
+      var arr=S.done[k]||[]; var all=dp.training.concat(dp.nutrition);
+      var rem=all.length-arr.length;
+      new Notification('ATP Dream 🎾',{
+        body:rem>0?dp.emoji+' '+dp.title+' – noch '+rem+' Tasks heute!':'✅ Alles erledigt! Champion! 🏆',
+        icon:'/icons/icon-192.png', tag:'atp-daily'
+      });
+    }
+    scheduleNotif();
+  },next-now);
+}
+
+// ── INSTALL GUIDE ─────────────────────────────────────────────
+function showSheet() {
+  var steps=[
+    {n:1,t:'Öffne diese Seite in <strong>Safari</strong> (nicht Chrome oder Firefox)'},
+    {n:2,t:'Tippe auf das <strong>Teilen-Symbol</strong> <strong>□↑</strong> in der Mitte unten'},
+    {n:3,t:'Scrolle runter und tippe auf <strong>„Zum Home-Bildschirm"</strong>'},
+    {n:4,t:'Tippe oben rechts auf <strong>„Hinzufügen"</strong> – fertig! 🎾'}
+  ];
+  document.getElementById('steps').innerHTML=steps.map(function(s){
+    return '<div class="step"><div class="step-n">'+s.n+'</div><div class="step-t">'+s.t+'</div></div>';
+  }).join('');
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeSheet(){document.getElementById('overlay').classList.remove('show');}
+
+// ── INIT ──────────────────────────────────────────────────────
+load();
+renderHeader();
+renderToday();
+
+if(S.notif&&typeof Notification!=='undefined'&&Notification.permission==='granted'){
+  document.getElementById('n-btn').textContent='Aktiv ✓';
+  document.getElementById('n-btn').classList.add('on');
+  document.getElementById('n-time').value=S.ntime||'07:30';
+  scheduleNotif();
+}
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').catch(function(){});
+}
+</script>
+</body>
+</html>
